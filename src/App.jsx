@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import TransactionTable from './components/TransactionTable';
 import AddExpenseModal from './components/AddExpenseModal';
+import DashboardView from './components/DashboardView';
 
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-OcDgxtU9FO8Qo7kI4-tZq1kw-wDf_FZqH8DNGazaPO1sTGNmXAk1Rgy2OfRgDuHF/exec';
 
@@ -11,7 +12,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Navigation State
-  const [activeView, setActiveView] = useState('Expenses');
+  const [activeView, setActiveView] = useState('Dashboard');
 
   // Data States
   const [expenseData, setExpenseData] = useState([]);
@@ -139,67 +140,110 @@ function App() {
         <Header toggleSidebar={toggleSidebar} title={pageTitle} />
 
         <div className="dashboard-grid fade-in">
-          <div className="section-header-row">
-            <h2 className="section-title desktop-only-title">{pageTitle}</h2>
-            <div className="dashboard-header-actions">
-              <button className="primary-btn" onClick={openModal}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add {activeView === 'Expenses' ? 'Expense' : 'Saving'}
-              </button>
-            </div>
-          </div>
-
-          {(activeView === 'Expenses' || activeView === 'Savings') && (
-            <div className="stats-row">
-              <div className="stats-card highlight">
-                <p className="stats-label">TOTAL {activeView.toUpperCase()} {activeView === 'Savings' ? 'ACCUMULATED' : 'SPEND'}</p>
-                <h3 className="stats-value">
-                  {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalAmount)}
-                </h3>
-                <p className="stats-comparison">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><line x1="17" y1="7" x2="7" y2="17"></line><polyline points="17 17 7 17 7 7"></polyline></svg>
-                  {filteredTransactions.length} records found
-                </p>
-              </div>
-
-              <div className="refine-view-card">
-                <div className="filter-minimal-row">
-                  <div className="filter-group">
-                    <label>Category</label>
-                    <select className="filter-select" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
-                      <option>All Categories</option>
-                      {currentCategories.map(cat => <option key={cat}>{cat}</option>)}
-                    </select>
-                  </div>
-                  <div className="filter-group">
-                    <label>Start Date</label>
-                    <input type="date" className="filter-input" value={filterStartDate || ''} onChange={(e) => setFilterStartDate(e.target.value)} />
-                  </div>
-                  <div className="filter-group">
-                    <label>End Date</label>
-                    <input type="date" className="filter-input" value={filterEndDate || ''} onChange={(e) => setFilterEndDate(e.target.value)} />
-                  </div>
-                </div>
+          {activeView !== 'Dashboard' && (
+            <div className="section-header-row">
+              <h2 className="section-title desktop-only-title">{pageTitle}</h2>
+              <div className="dashboard-header-actions">
+                <button className="primary-btn" onClick={openModal}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  Add {activeView === 'Expenses' ? 'Expense' : 'Saving'}
+                </button>
               </div>
             </div>
           )}
 
           {activeView === 'Dashboard' ? (
-            <div style={{ padding: '4rem', textAlign: 'center', color: '#6B7280', background: 'white', borderRadius: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
-              <h3>Dashboard Overview Coming Soon</h3>
-              <p>General wealth statistics for both Expenses and Savings will be displayed here.</p>
-            </div>
+            <DashboardView expenseData={expenseData} savingsData={savingsData} />
           ) : (
-            <TransactionTable
-              transactions={paginatedTransactions}
-              totalResults={filteredTransactions.length}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              isLoading={isLoading}
-              activeView={activeView}
-              onToggleStatus={handleToggleStatus}
-            />
+            <>
+              {/* Summary Card */}
+              <div className="stats-card">
+                <div className="stats-info">
+                  <p className="stats-label">{activeView === 'Expenses' ? 'TOTAL EXPENSES SPEND' : 'TOTAL SAVINGS ACCUMULATED'}</p>
+                  <h2 className="stats-amount">₹{totalAmount.toLocaleString('en-IN')}</h2>
+                  <p className="stats-meta">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}><polyline points="15 10 20 15 15 20" /><path d="M4 4v7a4 4 0 0 0 4 4h12" /></svg>
+                    {filteredTransactions.length} records found
+                  </p>
+                </div>
+              </div>
+
+              {/* Filters */}
+              <div className="filters-card">
+                <div className="filter-group">
+                  <label>CATEGORY</label>
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="All Categories">All Categories</option>
+                    {currentCategories.map((cat, idx) => (
+                      <option key={idx} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="filter-group">
+                  <label>START DATE</label>
+                  <input
+                    type="date"
+                    onChange={(e) => setFilterStartDate(e.target.value)}
+                    className="filter-date"
+                  />
+                </div>
+
+                <div className="filter-group">
+                  <label>END DATE</label>
+                  <input
+                    type="date"
+                    onChange={(e) => setFilterEndDate(e.target.value)}
+                    className="filter-date"
+                  />
+                </div>
+              </div>
+
+              {/* Table */}
+              <TransactionTable
+                transactions={currentEntries}
+                activeView={activeView}
+                onStatusChange={handleStatusUpdate}
+              />
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="pagination">
+                  <span className="pagination-info">Showing {currentPage} of {totalPages} {activeView.toLowerCase()}</span>
+                  <div className="pagination-controls">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="pagination-btn"
+                    >
+                      &lt;
+                    </button>
+                    <div className="pagination-numbers">
+                      {[...Array(totalPages)].map((_, i) => (
+                        <button
+                          key={i + 1}
+                          onClick={() => setCurrentPage(i + 1)}
+                          className={`pagination-number ${currentPage === i + 1 ? 'active' : ''}`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="pagination-btn"
+                    >
+                      &gt;
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
@@ -214,9 +258,11 @@ function App() {
       />
 
       {/* Mobile Fixed Add Button */}
-      <button className="mobile-fab" onClick={openModal} aria-label={`Add ${activeView === 'Expenses' ? 'Expense' : 'Saving'}`}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-      </button>
+      {activeView !== 'Dashboard' && (
+        <button className="mobile-fab" onClick={openModal} aria-label={`Add ${activeView === 'Expenses' ? 'Expense' : 'Saving'}`}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+      )}
     </div>
   );
 }
