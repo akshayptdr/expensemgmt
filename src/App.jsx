@@ -205,9 +205,9 @@ function App() {
 
               {/* Table */}
               <TransactionTable
-                transactions={currentEntries}
+                transactions={paginatedTransactions}
                 activeView={activeView}
-                onStatusChange={handleStatusUpdate}
+                onStatusChange={handleToggleStatus}
               />
 
               {/* Pagination */}
