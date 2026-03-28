@@ -84,6 +84,11 @@
     display: flex;
     /* Show on mobile */
   }
+
+  .dashboard-header-actions {
+    display: none;
+    /* Hide redundant header button on mobile */
+  }
 }
 
 /* Global Reset & Base */
