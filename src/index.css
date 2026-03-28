@@ -86,8 +86,8 @@
   }
 
   .dashboard-header-actions {
-    display: none;
-    /* Hide redundant header button on mobile */
+    display: none !important;
+    /* Force hide redundant header button on mobile */
   }
 }
 
