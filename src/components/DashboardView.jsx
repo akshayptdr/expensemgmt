@@ -149,14 +149,22 @@ const DashboardView = ({ expenseData, savingsData }) => {
                                 >
                                     {availableYears.map(year => <option key={year} value={year}>{year}</option>)}
                                 </select>
+                                <select
+                                    className="chart-year-select"
+                                    value={viewType}
+                                    onChange={(e) => setViewType(e.target.value)}
+                                >
+                                    <option value="Expenses">Expenses</option>
+                                    <option value="Income">Income</option>
+                                </select>
                             </div>
-                            <p>{filterYear} Annual Activity</p>
+                            <p>{filterYear} {viewType} Activity</p>
                         </div>
                     </div>
 
                     <div className="chart-container">
                         <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 20 }} barGap={8}>
+                            <BarChart data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 20 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                                 <XAxis
                                     dataKey="month"
@@ -171,24 +179,11 @@ const DashboardView = ({ expenseData, savingsData }) => {
                                     cursor={{ fill: '#f9fafb', radius: 8 }}
                                     content={<CustomTooltip />}
                                 />
-                                <Legend
-                                    verticalAlign="top"
-                                    align="right"
-                                    iconType="circle"
-                                    wrapperStyle={{ paddingBottom: '20px', fontSize: '12px', fontWeight: 700, color: '#4B5563' }}
-                                />
                                 <Bar
-                                    dataKey="Income"
-                                    fill="#10b981"
-                                    radius={[4, 4, 0, 0]}
-                                    barSize={20}
-                                    animationDuration={1500}
-                                />
-                                <Bar
-                                    dataKey="Expenses"
-                                    fill="#062820"
-                                    radius={[4, 4, 0, 0]}
-                                    barSize={20}
+                                    dataKey={viewType}
+                                    fill={viewType === 'Expenses' ? '#062820' : '#10b981'}
+                                    radius={[8, 8, 0, 0]}
+                                    barSize={40}
                                     animationDuration={1500}
                                 />
                             </BarChart>
