@@ -28,22 +28,6 @@ const TransactionTable = ({ transactions, totalResults, currentPage, totalPages,
     // Determine if we should show extended columns (Savings/FD mode)
     const isExtended = activeView === 'Savings';
 
-    const renderPageButtons = () => {
-        const buttons = [];
-        for (let i = 1; i <= totalPages; i++) {
-            buttons.push(
-                <button
-                    key={i}
-                    className={`page-btn ${currentPage === i ? 'active' : ''}`}
-                    onClick={() => onPageChange(i)}
-                >
-                    {i}
-                </button>
-            );
-        }
-        return buttons;
-    };
-
     return (
         <section className="table-section fade-in">
             <div className="transactions-table-wrapper" style={{ overflowX: 'auto' }}>
@@ -145,29 +129,6 @@ const TransactionTable = ({ transactions, totalResults, currentPage, totalPages,
                         )}
                     </tbody>
                 </table>
-            </div>
-
-            <div className="table-footer">
-                <span className="showing-entries">
-                    Showing {transactions.length} of {totalResults} {activeView.toLowerCase()}
-                </span>
-                <div className="pagination">
-                    <button
-                        className="page-btn"
-                        disabled={currentPage === 1}
-                        onClick={() => onPageChange(currentPage - 1)}
-                    >
-                        &lt;
-                    </button>
-                    {renderPageButtons()}
-                    <button
-                        className="page-btn"
-                        disabled={currentPage === totalPages || totalPages === 0}
-                        onClick={() => onPageChange(currentPage + 1)}
-                    >
-                        &gt;
-                    </button>
-                </div>
             </div>
         </section>
     );
