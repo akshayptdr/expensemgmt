@@ -149,7 +149,7 @@ const TransactionTable = ({ transactions, totalResults, currentPage, totalPages,
 
             <div className="table-footer">
                 <span className="showing-entries">
-                    Showing {transactions.length} of {totalResults} records
+                    Showing {transactions.length} of {totalResults} {activeView.toLowerCase()}
                 </span>
                 <div className="pagination">
                     <button

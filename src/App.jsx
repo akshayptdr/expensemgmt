@@ -11,7 +11,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Navigation State
-  const [activeView, setActiveView] = useState('Transactions');
+  const [activeView, setActiveView] = useState('Expenses');
 
   // Data States
   const [expenseData, setExpenseData] = useState([]);
@@ -135,16 +135,16 @@ function App() {
 
         <div className="dashboard-grid fade-in">
           <div className="section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h2 className="section-title">{activeView === 'Transactions' ? 'Transaction History' : activeView + ' Overview'}</h2>
+            <h2 className="section-title">{activeView === 'Expenses' ? 'Expenses History' : activeView + ' Overview'}</h2>
             <div className="dashboard-header-actions">
               <button className="primary-btn" onClick={openModal}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                Add {activeView === 'Transactions' ? 'Expense' : 'Saving'}
+                Add {activeView === 'Expenses' ? 'Expense' : 'Saving'}
               </button>
             </div>
           </div>
 
-          {(activeView === 'Transactions' || activeView === 'Savings') && (
+          {(activeView === 'Expenses' || activeView === 'Savings') && (
             <div className="stats-row">
               <div className="stats-card highlight">
                 <p className="stats-label">TOTAL {activeView.toUpperCase()} {activeView === 'Savings' ? 'ACCUMULATED' : 'SPEND'}</p>
