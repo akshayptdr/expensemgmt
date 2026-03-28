@@ -79,7 +79,24 @@
   background-color: #0d3b2f;
 }
 
+.header-page-title {
+  display: none;
+  /* Hidden on desktop */
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
 @media (max-width: 768px) {
+  .header-page-title {
+    display: block;
+  }
+
+  .desktop-only-title {
+    display: none !important;
+  }
+
   .mobile-fab {
     display: flex;
     /* Show on mobile */

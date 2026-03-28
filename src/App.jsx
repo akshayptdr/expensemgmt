@@ -122,6 +122,8 @@ function App() {
 
   const totalAmount = filteredTransactions.reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
 
+  const pageTitle = activeView === 'Expenses' ? 'Expenses History' : activeView + ' Overview';
+
   return (
     <div className={`app-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       <Sidebar
@@ -131,11 +133,11 @@ function App() {
         onNavChange={handleNavChange}
       />
       <main className="main-content">
-        <Header toggleSidebar={toggleSidebar} />
+        <Header toggleSidebar={toggleSidebar} title={pageTitle} />
 
         <div className="dashboard-grid fade-in">
           <div className="section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h2 className="section-title">{activeView === 'Expenses' ? 'Expenses History' : activeView + ' Overview'}</h2>
+            <h2 className="section-title desktop-only-title">{pageTitle}</h2>
             <div className="dashboard-header-actions">
               <button className="primary-btn" onClick={openModal}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
