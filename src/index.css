@@ -559,11 +559,40 @@ body {
   cursor: not-allowed;
 }
 
+/* Dashboard Year Selector Styles */
+.title-with-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+
+.chart-year-select {
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.chart-year-select:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.chart-year-select:focus {
+  border-color: #062820;
+  box-shadow: 0 0 0 3px rgba(6, 40, 32, 0.1);
+}
+
 @media (max-width: 768px) {
-  .pagination {
-    flex-direction: column;
-    gap: 1.5rem;
-    text-align: center;
+  .title-with-select {
+    justify-content: center;
   }
 }
 

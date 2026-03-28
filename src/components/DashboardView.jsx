@@ -30,62 +30,72 @@ const DashboardView = ({ expenseData, savingsData }) => {
         return new Date(dStr);
     };
 
-    // 1. Process Spending Flow Data (Last 7 Months)
+    const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
+
+    // Extract available years from data
+    const availableYears = useMemo(() => {
+        const years = new Set();
+        [...expenseData, ...savingsData].forEach(item => {
+            const d = safelyParseDate(item.date);
+            if (!isNaN(d.getTime())) years.add(d.getFullYear());
+        });
+        years.add(new Date().getFullYear());
+        return Array.from(years).sort((a, b) => b - a);
+    }, [expenseData, savingsData]);
+
+    // 1. Process Spending Flow Data (Full 12 Months for Selected Year)
     const chartData = useMemo(() => {
         const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        const today = new Date();
-        const last7Months = [];
+        const selectedYear = parseInt(filterYear);
+        const data = [];
 
-        // Generate the labels for the last 7 months relative to today
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            last7Months.push({
-                month: monthNames[d.getMonth()],
-                year: d.getFullYear(),
+        // Generate JAN-DEC for the selected year
+        for (let i = 0; i < 12; i++) {
+            data.push({
+                month: monthNames[i],
+                year: selectedYear,
                 Income: 0,
                 Expenses: 0,
-                label: `${monthNames[d.getMonth()]} ${d.getFullYear()}`
+                label: `${monthNames[i]} ${selectedYear}`
             });
         }
 
-        // Aggregate Expenses
+        // Aggregate Expenses for the selected year
         expenseData.forEach(item => {
             if (!item.date) return;
             const d = safelyParseDate(item.date);
-            if (isNaN(d.getTime())) return;
+            if (isNaN(d.getTime()) || d.getFullYear() !== selectedYear) return;
 
-            // Normalize to local month/year to prevent timezone shifts
-            const mLabel = monthNames[d.getMonth()];
-            const yLabel = d.getFullYear();
-
-            const monthEntry = last7Months.find(m => m.month === mLabel && m.year === yLabel);
+            const monthEntry = data[d.getMonth()];
             if (monthEntry) {
                 monthEntry.Expenses += parseAmount(item.amount);
             }
         });
 
-        // Aggregate Savings (Income) - EXCLUDING inactive records
+        // Aggregate Savings (Income) for the selected year
         savingsData.forEach(item => {
-            if (!item.date || item.status === 'Inactive') return;
+            if (!item.date || item.status === 'Inactive' || safelyParseDate(item.date).getFullYear() !== selectedYear) return;
             const d = safelyParseDate(item.date);
             if (isNaN(d.getTime())) return;
 
-            const mLabel = monthNames[d.getMonth()];
-            const yLabel = d.getFullYear();
-
-            const monthEntry = last7Months.find(m => m.month === mLabel && m.year === yLabel);
+            const monthEntry = data[d.getMonth()];
             if (monthEntry) {
                 monthEntry.Income += parseAmount(item.amount);
             }
         });
 
-        return last7Months;
-    }, [expenseData, savingsData]);
+        return data;
+    }, [expenseData, savingsData, filterYear]);
 
-    // 2. Process Category Split Data (Top 5 Categories)
+    // 2. Process Category Split Data (Top 5 Categories for Selected Year)
     const categorySplitData = useMemo(() => {
         const categories = {};
+        const selectedYear = parseInt(filterYear);
+
         expenseData.forEach(item => {
+            const d = safelyParseDate(item.date);
+            if (isNaN(d.getTime()) || d.getFullYear() !== selectedYear) return;
+
             const cat = item.category || 'Other';
             categories[cat] = (categories[cat] || 0) + parseAmount(item.amount);
         });
@@ -101,7 +111,7 @@ const DashboardView = ({ expenseData, savingsData }) => {
             ...item,
             percent: total > 0 ? Math.round((item.value / total) * 100) : 0
         }));
-    }, [expenseData]);
+    }, [expenseData, filterYear]);
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -126,8 +136,17 @@ const DashboardView = ({ expenseData, savingsData }) => {
                 <div className="chart-card spending-flow">
                     <div className="chart-header">
                         <div className="chart-title-group">
-                            <h3>Spending Flow</h3>
-                            <p>Last 7 Months Activity</p>
+                            <div className="title-with-select">
+                                <h3>Spending Flow</h3>
+                                <select
+                                    className="chart-year-select"
+                                    value={filterYear}
+                                    onChange={(e) => setFilterYear(e.target.value)}
+                                >
+                                    {availableYears.map(year => <option key={year} value={year}>{year}</option>)}
+                                </select>
+                            </div>
+                            <p>{filterYear} Annual Activity</p>
                         </div>
                         <div className="chart-toggle">
                             <button

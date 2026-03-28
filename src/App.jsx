@@ -25,8 +25,6 @@ function App() {
 
   // Filter States
   const [filterCategory, setFilterCategory] = useState('All Categories');
-  const [filterStartDate, setFilterStartDate] = useState(null);
-  const [filterEndDate, setFilterEndDate] = useState(null);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,7 +45,7 @@ function App() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filterCategory, filterStartDate, filterEndDate, activeView]);
+  }, [filterCategory, filterYear, activeView]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -88,20 +86,29 @@ function App() {
     return new Date(dStr);
   };
 
+  const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
+
+  const availableYears = useMemo(() => {
+    const years = new Set();
+    [...expenseData, ...savingsData].forEach(item => {
+      const d = safelyParseDate(item.date);
+      if (!isNaN(d.getTime())) years.add(d.getFullYear());
+    });
+    // Ensure current year is always available
+    years.add(new Date().getFullYear());
+    return Array.from(years).sort((a, b) => b - a);
+  }, [expenseData, savingsData]);
+
   const filteredTransactions = useMemo(() => {
     return currentDataset.filter(t => {
       const matchCategory = filterCategory === 'All Categories' || t.category === filterCategory;
       const transDate = safelyParseDate(t.date);
-      if (isNaN(transDate.getTime())) return false; // Skip invalid dates
+      if (isNaN(transDate.getTime())) return false;
 
-      const start = filterStartDate ? new Date(filterStartDate) : null;
-      const end = filterEndDate ? new Date(filterEndDate) : null;
-      if (start) start.setHours(0, 0, 0, 0);
-      if (end) end.setHours(23, 59, 59, 999);
-      const matchDate = (!start || transDate >= start) && (!end || transDate <= end);
-      return matchCategory && matchDate;
+      const matchYear = filterYear === 'All' || transDate.getFullYear() === parseInt(filterYear);
+      return matchCategory && matchYear;
     });
-  }, [currentDataset, filterCategory, filterStartDate, filterEndDate]);
+  }, [currentDataset, filterCategory, filterYear]);
 
   const totalPages = Math.ceil(filteredTransactions.length / entriesPerPage);
   const paginatedTransactions = useMemo(() => {
@@ -195,13 +202,12 @@ function App() {
                           {currentCategories.map(cat => <option key={cat}>{cat}</option>)}
                         </select>
                       </div>
-                      <div className="filter-group">
-                        <label>Start Date</label>
-                        <input type="date" className="filter-input" value={filterStartDate || ''} onChange={(e) => setFilterStartDate(e.target.value)} />
-                      </div>
-                      <div className="filter-group">
-                        <label>End Date</label>
-                        <input type="date" className="filter-input" value={filterEndDate || ''} onChange={(e) => setFilterEndDate(e.target.value)} />
+                      <div className="filter-group year-filter">
+                        <label>Year</label>
+                        <select className="filter-select" value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
+                          <option value="All">All Years</option>
+                          {availableYears.map(year => <option key={year} value={year}>{year}</option>)}
+                        </select>
                       </div>
                     </div>
                   </div>
