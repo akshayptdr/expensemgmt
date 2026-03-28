@@ -73,10 +73,27 @@ function App() {
   const currentDataset = activeView === 'Savings' ? savingsData : expenseData;
   const currentCategories = activeView === 'Savings' ? savingsCategories : expenseCategories;
 
+  // Helper to parse dates robustly, especially DD-MM-YYYY from Sheets
+  const safelyParseDate = (dateVal) => {
+    if (dateVal instanceof Date) return dateVal;
+    if (!dateVal) return new Date(NaN);
+
+    const dStr = String(dateVal).trim();
+    // Match DD-MM-YYYY or DD/MM/YYYY
+    const ddmmyyyy = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/;
+    const match = dStr.match(ddmmyyyy);
+    if (match) {
+      return new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]));
+    }
+    return new Date(dStr);
+  };
+
   const filteredTransactions = useMemo(() => {
     return currentDataset.filter(t => {
       const matchCategory = filterCategory === 'All Categories' || t.category === filterCategory;
-      const transDate = new Date(t.date);
+      const transDate = safelyParseDate(t.date);
+      if (isNaN(transDate.getTime())) return false; // Skip invalid dates
+
       const start = filterStartDate ? new Date(filterStartDate) : null;
       const end = filterEndDate ? new Date(filterEndDate) : null;
       if (start) start.setHours(0, 0, 0, 0);

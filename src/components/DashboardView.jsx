@@ -15,6 +15,21 @@ const DashboardView = ({ expenseData, savingsData }) => {
         return parseFloat(String(val).replace(/[^0-9.-]+/g, "")) || 0;
     };
 
+    // Helper to parse dates robustly, especially DD-MM-YYYY from Sheets
+    const safelyParseDate = (dateVal) => {
+        if (dateVal instanceof Date) return dateVal;
+        if (!dateVal) return new Date(NaN);
+
+        const dStr = String(dateVal).trim();
+        // Match DD-MM-YYYY or DD/MM/YYYY
+        const ddmmyyyy = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/;
+        const match = dStr.match(ddmmyyyy);
+        if (match) {
+            return new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]));
+        }
+        return new Date(dStr);
+    };
+
     // 1. Process Spending Flow Data (Last 7 Months)
     const chartData = useMemo(() => {
         const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -36,7 +51,7 @@ const DashboardView = ({ expenseData, savingsData }) => {
         // Aggregate Expenses
         expenseData.forEach(item => {
             if (!item.date) return;
-            const d = new Date(item.date);
+            const d = safelyParseDate(item.date);
             if (isNaN(d.getTime())) return;
 
             // Normalize to local month/year to prevent timezone shifts
@@ -52,7 +67,7 @@ const DashboardView = ({ expenseData, savingsData }) => {
         // Aggregate Savings (Income) - EXCLUDING inactive records
         savingsData.forEach(item => {
             if (!item.date || item.status === 'Inactive') return;
-            const d = new Date(item.date);
+            const d = safelyParseDate(item.date);
             if (isNaN(d.getTime())) return;
 
             const mLabel = monthNames[d.getMonth()];
