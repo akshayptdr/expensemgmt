@@ -120,7 +120,10 @@ function App() {
     }
   };
 
-  const totalAmount = filteredTransactions.reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
+  const totalAmount = filteredTransactions.reduce((acc, t) => {
+    if (activeView === 'Savings' && t.status === 'Inactive') return acc;
+    return acc + (parseFloat(t.amount) || 0);
+  }, 0);
 
   const pageTitle = activeView === 'Expenses' ? 'Expenses History' : activeView + ' Overview';
 
