@@ -156,52 +156,40 @@ function App() {
             <DashboardView expenseData={expenseData} savingsData={savingsData} />
           ) : (
             <>
-              {/* Summary Card */}
-              <div className="stats-card">
-                <div className="stats-info">
-                  <p className="stats-label">{activeView === 'Expenses' ? 'TOTAL EXPENSES SPEND' : 'TOTAL SAVINGS ACCUMULATED'}</p>
-                  <h2 className="stats-amount">₹{totalAmount.toLocaleString('en-IN')}</h2>
-                  <p className="stats-meta">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}><polyline points="15 10 20 15 15 20" /><path d="M4 4v7a4 4 0 0 0 4 4h12" /></svg>
-                    {filteredTransactions.length} records found
-                  </p>
-                </div>
-              </div>
+              {activeView !== 'Dashboard' && (
+                <div className="stats-row">
+                  <div className="stats-card highlight">
+                    <p className="stats-label">TOTAL {activeView.toUpperCase()} {activeView === 'Savings' ? 'ACCUMULATED' : 'SPEND'}</p>
+                    <h3 className="stats-value">
+                      {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalAmount)}
+                    </h3>
+                    <p className="stats-comparison">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><line x1="17" y1="7" x2="7" y2="17"></line><polyline points="17 17 7 17 7 7"></polyline></svg>
+                      {filteredTransactions.length} records found
+                    </p>
+                  </div>
 
-              {/* Filters */}
-              <div className="filters-card">
-                <div className="filter-group">
-                  <label>CATEGORY</label>
-                  <select
-                    value={filterCategory}
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                    className="filter-select"
-                  >
-                    <option value="All Categories">All Categories</option>
-                    {currentCategories.map((cat, idx) => (
-                      <option key={idx} value={cat}>{cat}</option>
-                    ))}
-                  </select>
+                  <div className="refine-view-card">
+                    <div className="filter-minimal-row">
+                      <div className="filter-group">
+                        <label>Category</label>
+                        <select className="filter-select" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+                          <option>All Categories</option>
+                          {currentCategories.map(cat => <option key={cat}>{cat}</option>)}
+                        </select>
+                      </div>
+                      <div className="filter-group">
+                        <label>Start Date</label>
+                        <input type="date" className="filter-input" value={filterStartDate || ''} onChange={(e) => setFilterStartDate(e.target.value)} />
+                      </div>
+                      <div className="filter-group">
+                        <label>End Date</label>
+                        <input type="date" className="filter-input" value={filterEndDate || ''} onChange={(e) => setFilterEndDate(e.target.value)} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="filter-group">
-                  <label>START DATE</label>
-                  <input
-                    type="date"
-                    onChange={(e) => setFilterStartDate(e.target.value)}
-                    className="filter-date"
-                  />
-                </div>
-
-                <div className="filter-group">
-                  <label>END DATE</label>
-                  <input
-                    type="date"
-                    onChange={(e) => setFilterEndDate(e.target.value)}
-                    className="filter-date"
-                  />
-                </div>
-              </div>
+              )}
 
               {/* Table */}
               <TransactionTable
