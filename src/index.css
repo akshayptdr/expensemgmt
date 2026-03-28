@@ -88,6 +88,13 @@
   letter-spacing: -0.02em;
 }
 
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
 @media (max-width: 768px) {
   .header-page-title {
     display: block;
@@ -95,6 +102,15 @@
 
   .desktop-only-title {
     display: none !important;
+  }
+
+  .section-header-row {
+    margin-bottom: 0.25rem !important;
+    /* Reduced gap for compact mobile view */
+  }
+
+  .dashboard-grid {
+    gap: 1rem !important;
   }
 
   .mobile-fab {

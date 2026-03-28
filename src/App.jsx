@@ -136,7 +136,7 @@ function App() {
         <Header toggleSidebar={toggleSidebar} title={pageTitle} />
 
         <div className="dashboard-grid fade-in">
-          <div className="section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div className="section-header-row">
             <h2 className="section-title desktop-only-title">{pageTitle}</h2>
             <div className="dashboard-header-actions">
               <button className="primary-btn" onClick={openModal}>
