@@ -25,6 +25,22 @@ function App() {
 
   // Filter States
   const [filterCategory, setFilterCategory] = useState('All Categories');
+  const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
+
+  // Helper to parse dates robustly, especially DD-MM-YYYY from Sheets
+  const safelyParseDate = (dateVal) => {
+    if (dateVal instanceof Date) return dateVal;
+    if (!dateVal) return new Date(NaN);
+
+    const dStr = String(dateVal).trim();
+    // Match DD-MM-YYYY or DD/MM/YYYY
+    const ddmmyyyy = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/;
+    const match = dStr.match(ddmmyyyy);
+    if (match) {
+      return new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]));
+    }
+    return new Date(dStr);
+  };
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,23 +86,6 @@ function App() {
   // Determine current dataset and categories based on view
   const currentDataset = activeView === 'Savings' ? savingsData : expenseData;
   const currentCategories = activeView === 'Savings' ? savingsCategories : expenseCategories;
-
-  // Helper to parse dates robustly, especially DD-MM-YYYY from Sheets
-  const safelyParseDate = (dateVal) => {
-    if (dateVal instanceof Date) return dateVal;
-    if (!dateVal) return new Date(NaN);
-
-    const dStr = String(dateVal).trim();
-    // Match DD-MM-YYYY or DD/MM/YYYY
-    const ddmmyyyy = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/;
-    const match = dStr.match(ddmmyyyy);
-    if (match) {
-      return new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]));
-    }
-    return new Date(dStr);
-  };
-
-  const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
 
   const availableYears = useMemo(() => {
     const years = new Set();
