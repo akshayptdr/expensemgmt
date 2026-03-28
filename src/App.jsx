@@ -222,63 +222,22 @@ function App() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="pagination">
-                  <span className="pagination-info">Showing {currentPage} of {totalPages} {activeView.toLowerCase()}</span>
-                  <div className="pagination-controls">
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
-                      className="pagination-btn"
-                    >
-                      &lt;
-                    </button>
-                    <div className="pagination-numbers">
-                      {(() => {
-                        const pages = [];
-                        const maxVisible = 5;
-                        const half = Math.floor(maxVisible / 2);
-
-                        let start = Math.max(currentPage - half, 1);
-                        let end = Math.min(start + maxVisible - 1, totalPages);
-
-                        if (end === totalPages) {
-                          start = Math.max(end - maxVisible + 1, 1);
-                        }
-
-                        if (start > 1) {
-                          pages.push(1);
-                          if (start > 2) pages.push('...');
-                        }
-
-                        for (let i = start; i <= end; i++) {
-                          pages.push(i);
-                        }
-
-                        if (end < totalPages) {
-                          if (end < totalPages - 1) pages.push('...');
-                          pages.push(totalPages);
-                        }
-
-                        return pages.map((p, i) => (
-                          <button
-                            key={i}
-                            onClick={() => typeof p === 'number' ? setCurrentPage(p) : null}
-                            className={`pagination-number ${currentPage === p ? 'active' : ''} ${typeof p !== 'number' ? 'ellipsis' : ''}`}
-                            disabled={typeof p !== 'number'}
-                          >
-                            {p}
-                          </button>
-                        ));
-                      })()}
-                    </div>
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                      className="pagination-btn"
-                    >
-                      &gt;
-                    </button>
-                  </div>
+                <div className="pagination simplified">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="pagination-btn nav-btn prev-btn"
+                  >
+                    Previous
+                  </button>
+                  <span className="pagination-info">Page {currentPage} of {totalPages}</span>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="pagination-btn nav-btn next-btn"
+                  >
+                    Next
+                  </button>
                 </div>
               )}
             </>
