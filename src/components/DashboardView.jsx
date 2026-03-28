@@ -117,10 +117,14 @@ const DashboardView = ({ expenseData, savingsData }) => {
         if (active && payload && payload.length) {
             return (
                 <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '12px 16px', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', border: '1px solid #f3f4f6' }}>
-                    <p className="label" style={{ margin: 0, fontSize: '10px', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{payload[0].payload.label}</p>
-                    <p className="intro" style={{ margin: '4px 0 0', fontSize: '16px', fontWeight: 800, color: '#111827' }}>
-                        ₹{payload[0].value.toLocaleString('en-IN')}
-                    </p>
+                    <p className="label" style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+                    {payload.map((entry, index) => (
+                        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: index > 0 ? '4px' : '0' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: entry.color }}></div>
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: '#4B5563' }}>{entry.name}:</span>
+                            <span style={{ fontSize: '14px', fontWeight: 800, color: '#111827' }}>₹{entry.value.toLocaleString('en-IN')}</span>
+                        </div>
+                    ))}
                 </div>
             );
         }
@@ -148,97 +152,98 @@ const DashboardView = ({ expenseData, savingsData }) => {
                             </div>
                             <p>{filterYear} Annual Activity</p>
                         </div>
-                        <div className="chart-toggle">
-                            <button
-                                className={`toggle-btn ${viewType === 'Income' ? 'active' : ''}`}
-                                onClick={() => setViewType('Income')}
-                            >Income</button>
-                            <button
-                                className={`toggle-btn ${viewType === 'Expenses' ? 'active' : ''}`}
-                                onClick={() => setViewType('Expenses')}
-                            >Expenses</button>
-                        </div>
-                    </div>
-
-                    <div className="chart-container">
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 20 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                                <XAxis
-                                    dataKey="month"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    interval={0}
-                                    tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 700 }}
-                                    dy={10}
-                                />
-                                <YAxis hide />
-                                <Tooltip
-                                    cursor={{ fill: '#f9fafb', radius: 8 }}
-                                    content={<CustomTooltip />}
-                                />
-                                <Bar
-                                    dataKey={viewType}
-                                    fill={viewType === 'Expenses' ? '#062820' : '#10b981'}
-                                    radius={[8, 8, 0, 0]}
-                                    barSize={40}
-                                    animationDuration={1500}
-                                />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-                {/* 2. Category Split Card */}
-                <div className="chart-card category-split">
-                    <div className="chart-header">
-                        <div className="chart-title-group">
-                            <h3>Category Split</h3>
-                            <p>Top 5 Spending Categories</p>
-                        </div>
-                    </div>
-
-                    <div className="category-chart-wrapper">
-                        <div className="pie-container">
-                            <ResponsiveContainer width="100%" height={200}>
-                                <PieChart>
-                                    <Pie
-                                        data={categorySplitData}
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="value"
+                        <div className="chart-container">
+                            <ResponsiveContainer width="100%" height={300}>
+                                <BarChart data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 20 }} barGap={8}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                                    <XAxis
+                                        dataKey="month"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        interval={0}
+                                        tick={{ fill: '#9ca3af', fontSize: 10, fontWeight: 700 }}
+                                        dy={10}
+                                    />
+                                    <YAxis hide />
+                                    <Tooltip
+                                        cursor={{ fill: '#f9fafb', radius: 8 }}
+                                        content={<CustomTooltip />}
+                                    />
+                                    <Legend
+                                        verticalAlign="top"
+                                        align="right"
+                                        iconType="circle"
+                                        wrapperStyle={{ paddingBottom: '20px', fontSize: '12px', fontWeight: 700, color: '#4B5563' }}
+                                    />
+                                    <Bar
+                                        dataKey="Income"
+                                        fill="#10b981"
+                                        radius={[4, 4, 0, 0]}
+                                        barSize={20}
                                         animationDuration={1500}
-                                    >
-                                        {categorySplitData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip content={<CustomTooltip />} />
-                                </PieChart>
+                                    />
+                                    <Bar
+                                        dataKey="Expenses"
+                                        fill="#062820"
+                                        radius={[4, 4, 0, 0]}
+                                        barSize={20}
+                                        animationDuration={1500}
+                                    />
+                                </BarChart>
                             </ResponsiveContainer>
-                            <div className="pie-center">
-                                <span className="pie-total">₹{(categorySplitData.reduce((a, b) => a + b.value, 0) / 1000).toFixed(1)}k</span>
-                                <span className="pie-label">TOTAL</span>
+                        </div>
+                    </div>
+
+                    {/* 2. Category Split Card */}
+                    <div className="chart-card category-split">
+                        <div className="chart-header">
+                            <div className="chart-title-group">
+                                <h3>Category Split</h3>
+                                <p>Top 5 Spending Categories</p>
                             </div>
                         </div>
 
-                        <div className="category-legend">
-                            {categorySplitData.map((item, index) => (
-                                <div key={item.name} className="legend-item">
-                                    <div className="legend-left">
-                                        <span className="dot" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                                        <span className="name">{item.name}</span>
-                                    </div>
-                                    <span className="percent">{item.percent}%</span>
+                        <div className="category-chart-wrapper">
+                            <div className="pie-container">
+                                <ResponsiveContainer width="100%" height={200}>
+                                    <PieChart>
+                                        <Pie
+                                            data={categorySplitData}
+                                            innerRadius={60}
+                                            outerRadius={80}
+                                            paddingAngle={5}
+                                            dataKey="value"
+                                            animationDuration={1500}
+                                        >
+                                            {categorySplitData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip content={<CustomTooltip />} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                                <div className="pie-center">
+                                    <span className="pie-total">₹{(categorySplitData.reduce((a, b) => a + b.value, 0) / 1000).toFixed(1)}k</span>
+                                    <span className="pie-label">TOTAL</span>
                                 </div>
-                            ))}
+                            </div>
+
+                            <div className="category-legend">
+                                {categorySplitData.map((item, index) => (
+                                    <div key={item.name} className="legend-item">
+                                        <div className="legend-left">
+                                            <span className="dot" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                                            <span className="name">{item.name}</span>
+                                        </div>
+                                        <span className="percent">{item.percent}%</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    );
+            );
 };
 
-export default DashboardView;
+            export default DashboardView;
