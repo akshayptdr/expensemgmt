@@ -3,6 +3,7 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend
 } from 'recharts';
+import { safelyParseDate } from '../utils/dateUtils';
 
 const DashboardView = ({ expenseData, savingsData }) => {
     const [viewType, setViewType] = useState('Expenses'); // For Spending Flow toggle
@@ -15,20 +16,6 @@ const DashboardView = ({ expenseData, savingsData }) => {
         return parseFloat(String(val).replace(/[^0-9.-]+/g, "")) || 0;
     };
 
-    // Helper to parse dates robustly, especially DD-MM-YYYY from Sheets
-    const safelyParseDate = (dateVal) => {
-        if (dateVal instanceof Date) return dateVal;
-        if (!dateVal) return new Date(NaN);
-
-        const dStr = String(dateVal).trim();
-        // Match DD-MM-YYYY or DD/MM/YYYY
-        const ddmmyyyy = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/;
-        const match = dStr.match(ddmmyyyy);
-        if (match) {
-            return new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]));
-        }
-        return new Date(dStr);
-    };
 
     const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
 

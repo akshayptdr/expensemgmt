@@ -4,6 +4,7 @@ import Header from './components/Header';
 import TransactionTable from './components/TransactionTable';
 import AddExpenseModal from './components/AddExpenseModal';
 import DashboardView from './components/DashboardView';
+import { safelyParseDate } from './utils/dateUtils';
 
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-OcDgxtU9FO8Qo7kI4-tZq1kw-wDf_FZqH8DNGazaPO1sTGNmXAk1Rgy2OfRgDuHF/exec';
 
@@ -27,20 +28,6 @@ function App() {
   const [filterCategory, setFilterCategory] = useState('All Categories');
   const [filterYear, setFilterYear] = useState(new Date().getFullYear().toString());
 
-  // Helper to parse dates robustly, especially DD-MM-YYYY from Sheets
-  const safelyParseDate = (dateVal) => {
-    if (dateVal instanceof Date) return dateVal;
-    if (!dateVal) return new Date(NaN);
-
-    const dStr = String(dateVal).trim();
-    // Match DD-MM-YYYY or DD/MM/YYYY
-    const ddmmyyyy = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/;
-    const match = dStr.match(ddmmyyyy);
-    if (match) {
-      return new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]));
-    }
-    return new Date(dStr);
-  };
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,14 +86,16 @@ function App() {
   }, [expenseData, savingsData]);
 
   const filteredTransactions = useMemo(() => {
-    return currentDataset.filter(t => {
-      const matchCategory = filterCategory === 'All Categories' || t.category === filterCategory;
-      const transDate = safelyParseDate(t.date);
-      if (isNaN(transDate.getTime())) return false;
+    return currentDataset
+      .filter(t => {
+        const matchCategory = filterCategory === 'All Categories' || t.category === filterCategory;
+        const transDate = safelyParseDate(t.date);
+        if (isNaN(transDate.getTime())) return false;
 
-      const matchYear = filterYear === 'All' || transDate.getFullYear() === parseInt(filterYear);
-      return matchCategory && matchYear;
-    });
+        const matchYear = filterYear === 'All' || transDate.getFullYear() === parseInt(filterYear);
+        return matchCategory && matchYear;
+      })
+      .sort((a, b) => safelyParseDate(b.date) - safelyParseDate(a.date));
   }, [currentDataset, filterCategory, filterYear]);
 
   const totalPages = Math.ceil(filteredTransactions.length / entriesPerPage);

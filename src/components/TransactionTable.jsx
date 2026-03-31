@@ -1,4 +1,5 @@
 import React from 'react';
+import { safelyParseDate } from '../utils/dateUtils';
 
 const TransactionTable = ({ transactions, totalResults, currentPage, totalPages, onPageChange, isLoading, activeView, onToggleStatus }) => {
     // Format currency to Indian Rupee
@@ -13,16 +14,17 @@ const TransactionTable = ({ transactions, totalResults, currentPage, totalPages,
 
     // Format date string
     const formatDate = (dateValue) => {
-        if (!dateValue) return 'N/A';
-        try {
-            const date = new Date(dateValue);
-            return {
-                main: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-            };
-        } catch (e) {
-            return { main: dateValue, time: '' };
+        if (!dateValue) return { main: 'N/A', time: '' };
+        const date = safelyParseDate(dateValue);
+        
+        if (isNaN(date.getTime())) {
+            return { main: String(dateValue), time: '' };
         }
+
+        return {
+            main: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        };
     };
 
     // Determine if we should show extended columns (Savings/FD mode)
