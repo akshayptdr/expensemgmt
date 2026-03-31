@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Sidebar = ({ isOpen, toggleSidebar, activeView, onNavChange }) => {
+const Sidebar = ({ isOpen, toggleSidebar, activeView, onNavChange, onLogout }) => {
     const navItems = [
         {
             id: 'Dashboard',
@@ -48,6 +48,18 @@ const Sidebar = ({ isOpen, toggleSidebar, activeView, onNavChange }) => {
                         ))}
                     </ul>
                 </nav>
+                <div style={{ marginTop: 'auto', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
+                    <button
+                        onClick={onLogout}
+                        className="nav-item logout-btn"
+                        style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', color: '#EF4444' }}
+                    >
+                        <span className="nav-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        </span>
+                        Logout
+                    </button>
+                </div>
             </aside>
         </>
     );

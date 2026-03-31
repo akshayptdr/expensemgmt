@@ -4,6 +4,7 @@ import Header from './components/Header';
 import TransactionTable from './components/TransactionTable';
 import AddExpenseModal from './components/AddExpenseModal';
 import DashboardView from './components/DashboardView';
+import LoginScreen from './components/LoginScreen';
 import { safelyParseDate } from './utils/dateUtils';
 
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-OcDgxtU9FO8Qo7kI4-tZq1kw-wDf_FZqH8DNGazaPO1sTGNmXAk1Rgy2OfRgDuHF/exec';
@@ -11,6 +12,11 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-OcDgxtU9FO8Qo7kI4
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('isAuth') === 'true';
+  });
 
   // Navigation State
   const [activeView, setActiveView] = useState('Dashboard');
@@ -40,6 +46,16 @@ function App() {
   const handleNavChange = (view) => {
     setActiveView(view);
     setIsSidebarOpen(false);
+  };
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('isAuth', 'true');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isAuth');
   };
 
   useEffect(() => {
@@ -140,6 +156,10 @@ function App() {
 
   const pageTitle = activeView === 'Expenses' ? 'Expenses History' : activeView + ' Overview';
 
+  if (!isAuthenticated) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
   return (
     <div className={`app-container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       <Sidebar
@@ -147,6 +167,7 @@ function App() {
         toggleSidebar={toggleSidebar}
         activeView={activeView}
         onNavChange={handleNavChange}
+        onLogout={handleLogout}
       />
       <main className="main-content">
         <Header toggleSidebar={toggleSidebar} title={pageTitle} />
