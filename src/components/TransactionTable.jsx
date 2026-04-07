@@ -72,7 +72,7 @@ const TransactionTable = ({ transactions, totalResults, currentPage, totalPages,
                                 const dateInfo = formatDate(t.date);
                                 const startInfo = t.startDate ? formatDate(t.startDate) : null;
                                 const maturityInfo = t.maturityDate ? formatDate(t.maturityDate) : null;
-                                const isActive = (t.status || 'Active') === 'Active';
+                                const isActive = (t.status || 'Active').trim().toLowerCase() === 'active';
 
                                 return (
                                     <tr key={t.id || idx}>

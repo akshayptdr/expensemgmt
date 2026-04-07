@@ -109,10 +109,13 @@ function App() {
         if (isNaN(transDate.getTime())) return false;
 
         const matchYear = filterYear === 'All' || transDate.getFullYear() === parseInt(filterYear);
-        return matchCategory && matchYear;
+        
+        const isInactive = activeView === 'Savings' && (t.status || 'Active').trim().toLowerCase() === 'inactive';
+
+        return matchCategory && matchYear && !isInactive;
       })
       .sort((a, b) => safelyParseDate(b.date) - safelyParseDate(a.date));
-  }, [currentDataset, filterCategory, filterYear]);
+  }, [currentDataset, filterCategory, filterYear, activeView]);
 
   const totalPages = Math.ceil(filteredTransactions.length / entriesPerPage);
   const paginatedTransactions = useMemo(() => {
@@ -121,7 +124,8 @@ function App() {
   }, [filteredTransactions, currentPage, entriesPerPage]);
 
   const handleToggleStatus = async (id, target, currentStatus) => {
-    const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+    const rawStatus = (currentStatus || 'Active').trim().toLowerCase();
+    const newStatus = rawStatus === 'active' ? 'Inactive' : 'Active';
 
     // Optimistic Update
     if (target === 'Savings') {
@@ -149,9 +153,16 @@ function App() {
     }
   };
 
+  const parseAmount = (val) => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    return parseFloat(String(val).replace(/[^0-9.-]+/g, "")) || 0;
+  };
+
   const totalAmount = filteredTransactions.reduce((acc, t) => {
-    if (activeView === 'Savings' && t.status === 'Inactive') return acc;
-    return acc + (parseFloat(t.amount) || 0);
+    const status = (t.status || 'Active').trim().toLowerCase();
+    if (activeView === 'Savings' && status === 'inactive') return acc;
+    return acc + parseAmount(t.amount);
   }, 0);
 
   const pageTitle = activeView === 'Expenses' ? 'Expenses History' : activeView + ' Overview';
@@ -227,7 +238,7 @@ function App() {
               <TransactionTable
                 transactions={paginatedTransactions}
                 activeView={activeView}
-                onStatusChange={handleToggleStatus}
+                onToggleStatus={handleToggleStatus}
               />
 
               {/* Pagination */}
