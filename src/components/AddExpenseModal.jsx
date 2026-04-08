@@ -19,6 +19,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, target, categories, belon
     const [interestRate, setInterestRate] = useState('');
     const [depositedTo, setDepositedTo] = useState('');
     const [matureAmount, setMatureAmount] = useState('');
+    const [documentUrl, setDocumentUrl] = useState('');
 
     // Set defaults when lists are loaded
     useEffect(() => {
@@ -55,7 +56,8 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, target, categories, belon
                 maturityDate,
                 interestRate,
                 depositedTo,
-                matureAmount
+                matureAmount,
+                url: documentUrl
             };
 
             await fetch(SCRIPT_URL, {
@@ -71,12 +73,14 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, target, categories, belon
             // Reset
             setAmount('');
             setNotes('');
+            setPaymentMethod('PhonePe');
             setBelongsTo(belongsToList?.[0] || '');
             setStartDate('');
             setMaturityDate('');
             setInterestRate('');
             setDepositedTo(depositedToList?.[0] || '');
             setMatureAmount('');
+            setDocumentUrl('');
 
             if (onSuccess) onSuccess();
             onClose();
@@ -100,18 +104,32 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, target, categories, belon
                 </button>
                 <div className="modal-header">
                     <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
-                        {isSavings ? 'Principal Amount / Saving' : 'Amount Spent'}
+                        {target === 'Documents' ? 'Document Name' : (isSavings ? 'Principal Amount / Saving' : 'Amount Spent')}
                     </p>
                     <div className="amount-display">
-                        <span className="currency">₹</span>
-                        <input
-                            type="number"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="amount-input"
-                            placeholder="0.00"
-                            required
-                        />
+                        {target === 'Documents' ? (
+                            <input
+                                type="text"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                className="amount-input"
+                                style={{ fontSize: '2.5rem', width: '100%' }}
+                                placeholder="Enter Title..."
+                                required
+                            />
+                        ) : (
+                            <>
+                                <span className="currency">₹</span>
+                                <input
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    className="amount-input"
+                                    placeholder="0.00"
+                                    required
+                                />
+                            </>
+                        )}
                     </div>
                 </div>
 
@@ -126,7 +144,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, target, categories, belon
                             </select>
                         </div>
 
-                        {!isSavings && (
+                        {target === 'Expenses' && (
                             <div className="form-group">
                                 <label><span className="form-icon">💳</span> Payment Method</label>
                                 <select className="form-input" value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} required>
@@ -138,6 +156,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, target, categories, belon
                                 </select>
                             </div>
                         )}
+
 
                         {isSavings && (
                             <>
@@ -175,24 +194,40 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, target, categories, belon
                                 </div>
                             </>
                         )}
+
+                        {target === 'Documents' && (
+                            <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                                <label><span className="form-icon">🔗</span> Document URL / Link</label>
+                                <input 
+                                    type="url" 
+                                    className="form-input" 
+                                    value={documentUrl} 
+                                    onChange={(e) => setDocumentUrl(e.target.value)} 
+                                    placeholder="https://docs.google.com/..." 
+                                    required
+                                />
+                            </div>
+                        )}
                     </div>
 
-                    <div className="form-group" style={{ marginTop: '1.5rem' }}>
-                        <label><span className="form-icon">📝</span> Notes</label>
-                        <textarea
-                            placeholder={isSavings ? "Add details about this investment..." : "Add details about this purchase..."}
-                            className="form-textarea"
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            required
-                        ></textarea>
-                    </div>
+                    {target !== 'Documents' && (
+                        <div className="form-group" style={{ marginTop: '1.5rem' }}>
+                            <label><span className="form-icon">📝</span> Notes</label>
+                            <textarea
+                                placeholder={isSavings ? "Add details about this investment..." : "Add details about this purchase..."}
+                                className="form-textarea"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                required
+                            ></textarea>
+                        </div>
+                    )}
 
                     <button className="save-btn" onClick={handleSave} disabled={isSaving}>
                         {isSaving ? 'Processing...' : (
                             <>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '10px' }}><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                Save {isSavings ? 'Investment' : 'Expense'}
+                                Save {target === 'Documents' ? 'Document' : (isSavings ? 'Investment' : 'Expense')}
                             </>
                         )}
                     </button>

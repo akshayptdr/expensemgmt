@@ -4,6 +4,7 @@ import Header from './components/Header';
 import TransactionTable from './components/TransactionTable';
 import AddExpenseModal from './components/AddExpenseModal';
 import DashboardView from './components/DashboardView';
+import DocumentsView from './components/DocumentsView';
 import LoginScreen from './components/LoginScreen';
 import { safelyParseDate } from './utils/dateUtils';
 
@@ -24,8 +25,10 @@ function App() {
   // Data States
   const [expenseData, setExpenseData] = useState([]);
   const [savingsData, setSavingsData] = useState([]);
+  const [documentsData, setDocumentsData] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
   const [savingsCategories, setSavingsCategories] = useState([]);
+  const [documentCategories, setDocumentCategories] = useState([]);
   const [belongsToList, setBelongsToList] = useState([]);
   const [depositedToList, setDepositedToList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,8 +78,10 @@ function App() {
       // Update states from new multi-sheet structure
       if (data.expenses) setExpenseData(data.expenses);
       if (data.savings) setSavingsData(data.savings);
+      if (data.documents) setDocumentsData(data.documents);
       if (data.expenseCategories) setExpenseCategories(data.expenseCategories);
       if (data.savingsCategories) setSavingsCategories(data.savingsCategories);
+      if (data.documentCategories) setDocumentCategories(data.documentCategories);
       if (data.belongsToList) setBelongsToList(data.belongsToList);
       if (data.depositedToList) setDepositedToList(data.depositedToList);
     } catch (error) {
@@ -87,8 +92,17 @@ function App() {
   };
 
   // Determine current dataset and categories based on view
-  const currentDataset = activeView === 'Savings' ? savingsData : expenseData;
-  const currentCategories = activeView === 'Savings' ? savingsCategories : expenseCategories;
+  const currentDataset = useMemo(() => {
+    if (activeView === 'Savings') return savingsData;
+    if (activeView === 'Documents') return documentsData;
+    return expenseData;
+  }, [activeView, savingsData, documentsData, expenseData]);
+
+  const currentCategories = useMemo(() => {
+    if (activeView === 'Savings') return savingsCategories;
+    if (activeView === 'Documents') return documentCategories;
+    return expenseCategories;
+  }, [activeView, savingsCategories, documentCategories, expenseCategories]);
 
   const availableYears = useMemo(() => {
     const years = new Set();
@@ -165,7 +179,7 @@ function App() {
     return acc + parseAmount(t.amount);
   }, 0);
 
-  const pageTitle = activeView === 'Expenses' ? 'Expenses History' : activeView + ' Overview';
+  const pageTitle = activeView === 'Expenses' ? 'Expenses History' : activeView + (activeView === 'Documents' ? '' : ' Overview');
 
   if (!isAuthenticated) {
     return <LoginScreen onLogin={handleLogin} />;
@@ -190,7 +204,7 @@ function App() {
               <div className="dashboard-header-actions">
                 <button className="primary-btn" onClick={openModal}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                  Add {activeView === 'Expenses' ? 'Expense' : 'Saving'}
+                  Add {activeView === 'Expenses' ? 'Expense' : (activeView === 'Documents' ? 'Document' : 'Saving')}
                 </button>
               </div>
             </div>
@@ -203,14 +217,25 @@ function App() {
               {activeView !== 'Dashboard' && (
                 <div className="stats-row">
                   <div className="stats-card highlight">
-                    <p className="stats-label">TOTAL {activeView.toUpperCase()} {activeView === 'Savings' ? 'ACCUMULATED' : 'SPEND'}</p>
+                    <p className="stats-label">TOTAL {activeView.toUpperCase()} {activeView === 'Documents' ? 'COUNT' : (activeView === 'Savings' ? 'ACCUMULATED' : 'SPEND')}</p>
                     <h3 className="stats-value">
-                      {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalAmount)}
+                      {activeView === 'Documents' ? filteredTransactions.length : new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalAmount)}
                     </h3>
                     <p className="stats-comparison">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}><line x1="17" y1="7" x2="7" y2="17"></line><polyline points="17 17 7 17 7 7"></polyline></svg>
                       {filteredTransactions.length} records found
                     </p>
+                    {activeView === 'Savings' && (
+                      <a 
+                        href="https://docs.google.com/spreadsheets/d/1hLSSABVT-sB-fnHR-1c4VtCqA8yDGqB1NI4rNT34NEA/edit?gid=0#gid=0" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="sheet-link"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        Source Google Sheet
+                      </a>
+                    )}
                   </div>
 
                   <div className="refine-view-card">
@@ -234,12 +259,15 @@ function App() {
                 </div>
               )}
 
-              {/* Table */}
-              <TransactionTable
-                transactions={paginatedTransactions}
-                activeView={activeView}
-                onToggleStatus={handleToggleStatus}
-              />
+              {activeView === 'Documents' ? (
+                <DocumentsView documents={paginatedTransactions} isLoading={isLoading} />
+              ) : (
+                <TransactionTable
+                  transactions={paginatedTransactions}
+                  activeView={activeView}
+                  onToggleStatus={handleToggleStatus}
+                />
+              )}
 
               {/* Pagination */}
               {totalPages > 1 && (
@@ -277,7 +305,7 @@ function App() {
 
       {/* Mobile Fixed Add Button */}
       {activeView !== 'Dashboard' && (
-        <button className="mobile-fab" onClick={openModal} aria-label={`Add ${activeView === 'Expenses' ? 'Expense' : 'Saving'}`}>
+        <button className="mobile-fab" onClick={openModal} aria-label={`Add ${activeView === 'Expenses' ? 'Expense' : (activeView === 'Documents' ? 'Document' : 'Saving')}`}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
         </button>
       )}

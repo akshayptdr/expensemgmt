@@ -29,6 +29,7 @@ const TransactionTable = ({ transactions, totalResults, currentPage, totalPages,
 
     // Determine if we should show extended columns (Savings/FD mode)
     const isExtended = activeView === 'Savings';
+    const isExpenses = activeView === 'Expenses';
 
     return (
         <section className="table-section fade-in">
@@ -41,7 +42,7 @@ const TransactionTable = ({ transactions, totalResults, currentPage, totalPages,
                             <th>DESCRIPTION / NOTES</th>
                             <th>CATEGORY</th>
                             <th>AMOUNT</th>
-                            {!isExtended && <th>METHOD</th>}
+                            {isExpenses && <th>METHOD</th>}
                             {isExtended && (
                                 <>
                                     <th>DEPOSITED TO</th>
@@ -90,7 +91,7 @@ const TransactionTable = ({ transactions, totalResults, currentPage, totalPages,
                                         <td style={{ fontWeight: 700, color: '#062820' }}>
                                             {formatCurrency(t.amount)}
                                         </td>
-                                        {!isExtended && (
+                                        {isExpenses && (
                                             <td>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4B5563', fontSize: '0.875rem' }}>
                                                     {t.method}

@@ -17,6 +17,11 @@ const Sidebar = ({ isOpen, toggleSidebar, activeView, onNavChange, onLogout }) =
             name: 'Savings',
             icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4 2 2 0 0 0 0 4 2 2 0 0 0 0 4 1 1 0 0 0 1 1h13a1 1 0 0 0 1-1v-3" /><path d="M14 13h6" /></svg>
         },
+        {
+            id: 'Documents',
+            name: 'Documents',
+            icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 15l3 3 3-3" /><path d="M12 11v7" /></svg>
+        },
     ];
 
     return (

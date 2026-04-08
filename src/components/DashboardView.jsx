@@ -100,6 +100,21 @@ const DashboardView = ({ expenseData, savingsData }) => {
         }));
     }, [expenseData, filterYear]);
 
+    // 3. Process Matured Savings (Actions)
+    const maturedSavings = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        return savingsData.filter(item => {
+            if (!item.maturityDate || (item.status || 'Active').trim().toLowerCase() !== 'active') return false;
+            const maturityDate = safelyParseDate(item.maturityDate);
+            if (isNaN(maturityDate.getTime())) return false;
+            
+            // Should show if matureDate <= today
+            return maturityDate <= today;
+        }).sort((a, b) => safelyParseDate(b.maturityDate) - safelyParseDate(a.maturityDate));
+    }, [savingsData]);
+
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
             return (
@@ -225,6 +240,51 @@ const DashboardView = ({ expenseData, savingsData }) => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* 3. Actions Section */}
+            <div className="actions-section fade-in" style={{ marginTop: '3rem' }}>
+                <div className="section-header">
+                    <h2 className="section-title">Actions Required</h2>
+                    <p className="section-subtitle">Matured savings needing follow-up</p>
+                </div>
+
+                {maturedSavings.length > 0 ? (
+                    <div className="action-cards-grid">
+                        {maturedSavings.map((item) => (
+                            <div key={item.id} className="action-card matured">
+                                <div className="action-card-header">
+                                    <div className="matured-tag">MATURED</div>
+                                    <span className="action-date">
+                                        {safelyParseDate(item.maturityDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </span>
+                                </div>
+                                <div className="action-card-body">
+                                    <h4 className="action-description">{item.notes || 'No description'}</h4>
+                                    <div className="action-meta">
+                                        <div className="meta-item">
+                                            <span className="meta-label">Matured Amount</span>
+                                            <span className="meta-value">₹{parseAmount(item.matureAmount).toLocaleString('en-IN')}</span>
+                                        </div>
+                                        <div className="meta-item">
+                                            <span className="meta-label">Deposited To</span>
+                                            <span className="meta-value">{item.depositedTo || '-'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="action-card-footer">
+                                    <span className="belongs-to">Belongs to: <strong>{item.belongsTo || '-'}</strong></span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="empty-actions-card">
+                        <div className="empty-icon">✓</div>
+                        <h3>All caught up!</h3>
+                        <p>No savings have matured recently. You're doing great!</p>
+                    </div>
+                )}
             </div>
         </div>
     );
