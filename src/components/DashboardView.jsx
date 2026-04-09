@@ -133,7 +133,7 @@ const DashboardView = ({ expenseData, savingsData }) => {
         return null;
     };
 
-    const COLORS = ['#062820', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'];
+    const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#0EA5E9', '#F43F5E'];
 
     return (
         <div className="dashboard-view">
@@ -183,7 +183,7 @@ const DashboardView = ({ expenseData, savingsData }) => {
                                 />
                                 <Bar
                                     dataKey={viewType}
-                                    fill={viewType === 'Expenses' ? '#062820' : '#10b981'}
+                                    fill={viewType === 'Expenses' ? '#4F46E5' : '#10B981'}
                                     radius={[8, 8, 0, 0]}
                                     barSize={40}
                                     animationDuration={1500}
